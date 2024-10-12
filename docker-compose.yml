@@ -13,6 +13,7 @@ services:
     ports:
       - '3001:3001'
     volumes:
-      - '.:/app'
-    restart: 'no'
-
+      # Change './actual-data' below to the path to the folder you want Actual to store its data in on your server.
+      # '/data' is the path Actual will look for its files in by default, so leave that as-is.      
+      - /mnt/container-data/actual-budget/data:./actual-data:/data
+    restart: unless-stopped
