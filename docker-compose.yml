@@ -9,9 +9,9 @@ services:
     build: .
     image: actual-development
     environment:
-      # Uncomment any of the lines below to set configuration options.
-      # - ACTUAL_HTTPS_KEY=/data/selfhost.key
-      # - ACTUAL_HTTPS_CERT=/data/selfhost.crt
+      # Uncomment any of the lines below to set configuration options.      
+      - ACTUAL_HTTPS_KEY=/data/actualbudget-key.pem
+      - ACTUAL_HTTPS_CERT=/data/actualbudget.pem
       - ACTUAL_PORT=5006
       # - ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB=20
       # - ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB=50
@@ -21,5 +21,5 @@ services:
     volumes:
       # Change './actual-data' below to the path to the folder you want Actual to store its data in on your server.
       # '/data' is the path Actual will look for its files in by default, so leave that as-is.      
-      - /mnt/container-data/actual-budget/data:./actual-data:/data
+      - /mnt/container-data/actual-budget/data:/data
     restart: unless-stopped
