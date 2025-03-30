@@ -5,12 +5,13 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - README.md
-      - LICENSE.txt
+    paths:
+      - 'packages/sync-server/**'
   pull_request:
     branches:
       - master
+    paths:
+      - 'packages/sync-server/**'
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -23,6 +24,7 @@ env:
   IMAGES: |
     actualbudget/actual-server
     ghcr.io/actualbudget/actual-server
+    ghcr.io/actualbudget/actual
 
   # Creates the following tags:
   # - actual-server:edge
@@ -32,6 +34,7 @@ env:
 
 jobs:
   build:
+    if: ${{ github.event.repository.fork == false }}
     name: Build Docker image
     runs-on: ubuntu-latest
     strategy:
@@ -70,17 +73,19 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download artifacts
-        run: ./docker/download-artifacts.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Building outside of the docker image allows us to build once and push to multiple platforms
+      # This is faster and avoids yarn memory issues
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Build Web
+        run: ./bin/package-browser
 
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          file: docker/edge-${{ matrix.os }}.Dockerfile
+          file: packages/sync-server/docker/${{ matrix.os }}.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7${{ matrix.os == 'alpine' && ',linux/arm/v6' || '' }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
